@@ -1,0 +1,3 @@
+[submodule "protocols/libavim/avproto"]
+	path = protocols/libavim/avproto
+	url = https://github.com/avplayer/libavim.git

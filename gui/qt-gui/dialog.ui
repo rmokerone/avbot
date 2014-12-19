@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+	<x>0</x>
+	<y>0</y>
+	<width>400</width>
+	<height>339</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+	<widget class="QGroupBox" name="groupBox">
+	 <property name="title">
+	  <string>QQ设置</string>
+	 </property>
+	 <layout class="QHBoxLayout" name="horizontalLayout">
+	  <item>
+	   <widget class="QLabel" name="label">
+		<property name="text">
+		 <string>用户名</string>
+		</property>
+	   </widget>
+	  </item>
+	  <item>
+	   <widget class="QLineEdit" name="qqnum"/>
+	  </item>
+	  <item>
+	   <widget class="QLabel" name="label_2">
+		<property name="text">
+		 <string>密码</string>
+		</property>
+	   </widget>
+	  </item>
+	  <item>
+	   <widget class="QLineEdit" name="qqpwd">
+		<property name="echoMode">
+		 <enum>QLineEdit::Password</enum>
+		</property>
+	   </widget>
+	  </item>
+	 </layout>
+	</widget>
+   </item>
+   <item>
+	<widget class="QGroupBox" name="groupBox_2">
+	 <property name="title">
+	  <string>IRC频道设置</string>
+	 </property>
+	 <layout class="QVBoxLayout" name="verticalLayout_2">
+	  <item>
+	   <widget class="QCheckBox" name="enable_irc">
+		<property name="text">
+		 <string>启用IRC</string>
+		</property>
+	   </widget>
+	  </item>
+	  <item>
+	   <layout class="QHBoxLayout" name="ircbox">
+		<item>
+		 <widget class="QLabel" name="label_3">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="text">
+		   <string>频道</string>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLineEdit" name="ircroom">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLabel" name="label_4">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="text">
+		   <string>昵称</string>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLineEdit" name="ircnick">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLabel" name="label_5">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="text">
+		   <string>密码</string>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLineEdit" name="ircpwd">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="echoMode">
+		   <enum>QLineEdit::Password</enum>
+		  </property>
+		 </widget>
+		</item>
+	   </layout>
+	  </item>
+	 </layout>
+	</widget>
+   </item>
+   <item>
+	<widget class="QGroupBox" name="groupBox_3">
+	 <property name="title">
+	  <string>XMPP频道设置</string>
+	 </property>
+	 <layout class="QVBoxLayout" name="verticalLayout_3">
+	  <item>
+	   <widget class="QCheckBox" name="enable_xmpp">
+		<property name="text">
+		 <string>启用XMPP</string>
+		</property>
+	   </widget>
+	  </item>
+	  <item>
+	   <layout class="QHBoxLayout" name="xmppbox1">
+		<item>
+		 <widget class="QLabel" name="label_6">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="text">
+		   <string>频道</string>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLineEdit" name="xmpproom">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLabel" name="label_9">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="text">
+		   <string>服务器</string>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLineEdit" name="xmppserver">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		 </widget>
+		</item>
+	   </layout>
+	  </item>
+	  <item>
+	   <layout class="QHBoxLayout" name="xmppbox2">
+		<item>
+		 <widget class="QLabel" name="label_7">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="text">
+		   <string>昵称</string>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLineEdit" name="xmppnick">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLabel" name="label_8">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="text">
+		   <string>密码</string>
+		  </property>
+		 </widget>
+		</item>
+		<item>
+		 <widget class="QLineEdit" name="xmpppwd">
+		  <property name="enabled">
+		   <bool>false</bool>
+		  </property>
+		  <property name="echoMode">
+		   <enum>QLineEdit::Password</enum>
+		  </property>
+		 </widget>
+		</item>
+	   </layout>
+	  </item>
+	 </layout>
+	</widget>
+   </item>
+   <item>
+	<widget class="QDialogButtonBox" name="buttonBox">
+	 <property name="orientation">
+	  <enum>Qt::Horizontal</enum>
+	 </property>
+	 <property name="standardButtons">
+	  <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+	 </property>
+	</widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+	<hint type="sourcelabel">
+	 <x>248</x>
+	 <y>254</y>
+	</hint>
+	<hint type="destinationlabel">
+	 <x>157</x>
+	 <y>274</y>
+	</hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+	<hint type="sourcelabel">
+	 <x>316</x>
+	 <y>260</y>
+	</hint>
+	<hint type="destinationlabel">
+	 <x>286</x>
+	 <y>274</y>
+	</hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
