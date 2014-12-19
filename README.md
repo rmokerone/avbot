@@ -71,3 +71,9 @@ cmake 生成好 VC 工程然后打开 avbot.sln 即可。
 
 如果 boost 在 c:/boost 则无需额外设置
 如果不是，需要设定 BOOST_ROOT, 可以在 cmake-gui 里点 configure 按钮前，通过 "Add Enytry" 按钮添加。
+
+# 关于历史
+
+avbot 的历史剧烈膨胀, 达到 127MB 之巨, 已经严重影响到国内用户执行 git clone 了. 正好 avbot 经历了一次重构, 因此重构后 avbot 丢弃全部历史轻装上阵.
+当然历史并非真的丢弃, 已经有一份完整的历史在 https://github.com/microcai/avbot 备份了.
+
