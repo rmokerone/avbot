@@ -507,6 +507,32 @@ int main(int argc, char * argv[])
 
 	}
 
+	// 解析 accounts 文件, 设置帐号
+	pt::ptree accounts_settings;
+	{
+		std::ifstream accounts_file_stream;
+		std::string accounts_file_content;
+		accounts_file_content.resize(fs::file_size(account_settings));
+		accounts_file_stream.open(account_settings.string().c_str(), std::ifstream::in);
+		accounts_file_stream.read(&accounts_file_content[0], accounts_file_content.size());
+		accounts_settings = parse_cfg(accounts_file_content);
+	}
+
+	{
+		auto globle_settings = accounts_settings.get_child("global");
+
+		run_root = globle_settings.get<std::string>("logdir");
+
+		if (!globle_settings.get<std::string>("antigate_key","").empty())
+			antigate_key = globle_settings.get<std::string>("antigate_key");
+
+		if (!globle_settings.get<std::string>("antigate_host","").empty())
+			antigate_host = globle_settings.get<std::string>("antigate_host");
+
+		if (!globle_settings.get<std::string>("weblogbaseurl","").empty())
+			weblogbaseurl = globle_settings.get<std::string>("weblogbaseurl");
+	}
+
 	// 设置日志自动记录目录.
 	if (!run_root.empty())
 	{
@@ -584,14 +610,7 @@ int main(int argc, char * argv[])
 	mybot.preamble_qq_fmt = preamble_qq_fmt;
 	mybot.preamble_xmpp_fmt = preamble_xmpp_fmt;
 
-	// 解析 accounts 文件, 设置帐号
-	pt::ptree accounts_settings;{
-	std::ifstream accounts_file_stream;
-	std::string accounts_file_content;
-	accounts_file_content.resize(fs::file_size(account_settings));
-	accounts_file_stream.open(account_settings.string().c_str(), std::ifstream::in);
-	accounts_file_stream.read(&accounts_file_content[0], accounts_file_content.size());
-	accounts_settings = parse_cfg(accounts_file_content);}
+
 
 	// 解析 accounts_settings 然后设置帐号
  	for (pt::ptree::value_type account: accounts_settings)
@@ -640,20 +659,6 @@ int main(int argc, char * argv[])
 				auto cert = account.second.get<std::string>("certfile");
 
 				auto avim_client = mybot.add_avim_account(key, cert);
-
-			}else if (account.first == "global")
-			{
-				run_root = account.second.get<std::string>("logdir");
-
-				if (!account.second.get<std::string>("antigate_key","").empty())
-					antigate_key = account.second.get<std::string>("antigate_key");
-
-				if (!account.second.get<std::string>("antigate_host","").empty())
-					antigate_host = account.second.get<std::string>("antigate_host");
-
-				if (!account.second.get<std::string>("weblogbaseurl","").empty())
-					weblogbaseurl = account.second.get<std::string>("weblogbaseurl");
-
 
 			}
 		}catch(const boost::property_tree::ptree_error&)
