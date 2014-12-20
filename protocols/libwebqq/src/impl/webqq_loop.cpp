@@ -80,6 +80,15 @@ public:
 				{
 					AVLOG_INFO
 						<< "libwebqq: GOOD NEWS! The cached cookies accepted by TX!";
+
+					// 然后从数据库里找出 group 的信息发射出去
+
+					auto groups = m_webqq->m_buddy_mgr.get_groups();
+
+					for(qqGroup_ptr g : groups )
+					{
+						m_webqq->siggroupnumber(g);
+					}
 				}
 
 				// 判断消息处理结果

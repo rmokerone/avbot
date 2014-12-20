@@ -40,7 +40,9 @@ public:
 
 	qqGroup_ptr get_group_by_gid(std::string gid);
 	qqGroup_ptr get_group_by_qq(std::string qqnum);
-	std::vector< qqBuddy_ptr > get_buddies();
+
+	std::vector<qqGroup_ptr> get_groups();
+	std::vector<qqBuddy_ptr> get_buddies();
 
 	std::vector<std::string> get_group_all_buddies_uin(std::string gid);
 

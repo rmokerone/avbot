@@ -198,7 +198,7 @@ else()
 
 	find_package(ALSA)
 
-	if (NOT ALSA_FOUND)
+	if (ALSA_FOUND)
 		add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tweet.o
 			COMMAND ${CMAKE_LINKER} -r -b binary -o ${CMAKE_CURRENT_BINARY_DIR}/tweet.o tweet.wav
 			DEPENDS tweet.wav WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

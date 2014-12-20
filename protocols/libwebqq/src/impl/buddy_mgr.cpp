@@ -130,7 +130,26 @@ qqGroup_ptr buddy_mgr::get_group_by_qq(std::string qqnum)
 	return get_group_by_gid(gid);
 }
 
-std::vector< qqBuddy_ptr > buddy_mgr::get_buddies()
+std::vector<qqGroup_ptr> buddy_mgr::get_groups()
+{
+	std::vector<std::string> group_qqnum(1000), group_name(1000);
+
+	m_sql << "select qqnum,name from groups", soci::into(group_qqnum), soci::into(group_name);
+
+	std::vector<qqGroup_ptr> ret;
+
+	// 组合
+	for (int i=0; i < group_qqnum.size();++i)
+	{
+		qqGroup_ptr g(new qqGroup);
+		g->qqnum = group_qqnum[i];
+		g->name = group_name[i];
+		ret.push_back(g);
+	}
+	return ret;
+}
+
+std::vector<qqBuddy_ptr> buddy_mgr::get_buddies()
 {
 	std::vector<std::string> uins(1000), nicks(1000), marknames(1000), qqnums(1000);
 	std::vector<int> flags(1000);
