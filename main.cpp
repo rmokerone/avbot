@@ -523,10 +523,10 @@ int main(int argc, char * argv[])
 
 		run_root = globle_settings.get<std::string>("logdir");
 
-		if (!globle_settings.get<std::string>("antigatekey","").empty())
+		if (!globle_settings.get<std::string>("antigate_key","").empty())
 			antigate_key = globle_settings.get<std::string>("antigate_key");
 
-		if (!globle_settings.get<std::string>("antigatehost","").empty())
+		if (!globle_settings.get<std::string>("antigate_host","").empty())
 			antigate_host = globle_settings.get<std::string>("antigate_host");
 
 		if (!globle_settings.get<std::string>("weblogbaseurl","").empty())
