@@ -50,32 +50,14 @@ if(WIN32)
 	set(ENABLE_LIBGCC_STATIC ON)
 	set(ENABLE_LIBSTDCXX_STATIC ON)
 	set(ENABLE_STATIC ON)
+	add_definitions(-D_WIN32_WINNT=0x0501 -DWINVER=0x0501)
+
 if(MSVC)
 	set(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} DbgHelp.lib secur32.lib ws2_32.lib comctl32.lib mswsock.lib winmm.lib crypt32.lib")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DELAYLOAD:winmm.dll")
 else()
 	link_libraries(dbghelp secur32 ws2_32  comctl32  mswsock winmm crypt32)
 endif()
-endif()
-
-if(WIN32)
-	add_definitions(-D_WIN32_WINNT=0x0501 -DWINVER=0x0501)
-	if(NOT MSVC)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os -g0")
-	endif()
-
-	if(MSVC)
-		if(CMAKE_CL_64)
-			link_directories(${PROJECT_SOURCE_DIR}/openssl/lib64)
-		else()
-			link_directories(${PROJECT_SOURCE_DIR}/openssl/lib)
-		endif()
-
-	else()
-		link_directories(${PROJECT_SOURCE_DIR}/openssl/lib64)
-		link_directories(${PROJECT_SOURCE_DIR}/openssl/lib)
-	endif()
-	link_directories(${PROJECT_SOURCE_DIR}/libsformingw64)
 endif()
 
 if(NOT MSVC AND NOT APPLE)
@@ -115,15 +97,14 @@ if(ENABLE_LIBGCC_STATIC OR WIN32)
 	endif()
 endif()
 
-find_package(Boost 1.55 REQUIRED COMPONENTS timer chrono date_time filesystem system program_options regex locale)
+find_package(Boost 1.57 REQUIRED COMPONENTS timer chrono date_time filesystem system program_options regex locale)
+find_package(systemd)
+find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 if(MSVC)
-	# add_definitions( -DBOOST_ALL_NO_LIB )
-	link_directories(${Boost_LIBRARY_DIR})
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LIBPATH:${Boost_LIBRARY_DIR}")
 endif()
-
-#add_definitions(-DBOOST_LOG_NO_THREADS)
-find_package(Threads)
 
 if(WIN32)
 	add_definitions(-DBOOST_ALL_STATIC_LINK)
@@ -133,8 +114,6 @@ if(WIN32)
 	add_definitions(-DWIN32_LEAN_AND_MEAN)
 	add_definitions(-DNOMINMAX)
 endif()
-
-find_package(systemd)
 
 add_definitions(-DAVHTTP_ENABLE_OPENSSL -DAVHTTP_DISABLE_MULTI_DOWNLOAD -DDISABLE_LOGGER)
 
@@ -161,13 +140,6 @@ set(SQLite3_FOUND ON)
 
 add_subdirectory(third_party/soci/src EXCLUDE_FROM_ALL)
 
-if(NOT WIN32)
-	find_package(OpenSSL)
-else()
-	set(OpenSSL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/openssl/include)
-	include_directories("${PROJECT_SOURCE_DIR}/openssl/include")
-	include_directories("${PROJECT_SOURCE_DIR}/openssl/include")
-endif(NOT WIN32)
 
 if(WITH_QT_GUI)
 	add_subdirectory(gui/qt-gui)
