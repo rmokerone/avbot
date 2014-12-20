@@ -51,7 +51,7 @@ struct cfg_grammar : public qi::grammar<Iterator, ptree(), ascii::space_type>
 
 		key_value_pairs %= comments >> *(string_val >> comments);
 		string_val %= key >> qi::lit(':') >> value;
-		key %= *ascii::alnum;
+		key %= *(ascii::char_ - qi::lit(' ') - qi::lit(':') - qi::lit('\n'));
 		value %= qi::as<ptree>()[number] | qi::as<ptree>()[string] | object | list;
 		string %= qi::lit('"') >> *(ascii::char_ - qi::lit('"')) >> qi::lit('"');
 		number %= qi::int_;
