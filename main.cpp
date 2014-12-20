@@ -650,6 +650,11 @@ int main(int argc, char * argv[])
 
 				if (!account.second.get<std::string>("antigate_host","").empty())
 					antigate_host = account.second.get<std::string>("antigate_host");
+
+				if (!account.second.get<std::string>("weblogbaseurl","").empty())
+					weblogbaseurl = account.second.get<std::string>("weblogbaseurl");
+
+
 			}
 		}catch(const boost::property_tree::ptree_error&)
 		{}
