@@ -706,14 +706,13 @@ int main(int argc, char * argv[])
 	for (auto subdir_it = fs::directory_iterator(run_root); subdir_it != fs::directory_iterator(); ++subdir_it)
 	{
 		fs::path subdirs = * subdir_it;
-		if (fs::is_directory(subdirs))
+		if (fs::is_directory(subdirs) && (!fs::is_symlink(subdirs)))
 		{
-			std::cout << "Entering: " << subdirs << std::endl;
 			// 检查 [channelname]/map.txt
 			if (fs::exists(subdirs / "map.txt"))
 			{
+				std::cout << "processing: " << subdirs << std::endl;
 				// 好, 配置 avchannel !
-				//mybot.add_channel();
 
 				std::string channel_name = subdirs.filename().string();
 
@@ -732,6 +731,7 @@ int main(int argc, char * argv[])
 
 					if( tokens.size() ==2)
 					{
+						std::cout << "  add room " << mapline << std::endl;
 						channel->add_room(tokens[0], tokens[1]);
                     }
                     else
