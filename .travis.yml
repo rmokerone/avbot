@@ -19,6 +19,7 @@ before_install:
   - sudo cp -a boost_1_57_0/boost/spirit /usr/include/boost/
   - mkdir -pv build
   - git submodule update --init
+  - sed 's/1\.57/1\.55/g' -i CMakeLists.txt
 
 before_script:
   cd build && LDFLAGS="-lrt" cmake -DENABLE_LUA=on -DENABLE_PYTHON=on -DENABLE_ZMQ=ON -DINTERNALGLOOX=OFF .. 
