@@ -207,7 +207,7 @@ struct build_group_has_qq
 std::string img_cacher(std::string cface)
 {
 	std::string ret;
-	fs::path image_dir =  fs::path("images") / cface.substr(0,2);
+	fs::path image_dir =  fs::path("images") / cface.substr(1,2);
 
 	fs::path image_file = image_dir / cface;
 
@@ -226,7 +226,7 @@ std::string img_cacher(std::string cface)
 
 static void img_saver(std::string cface, std::string data)
 {
-	fs::path image_dir =  fs::path("images") / cface.substr(0,2);
+	fs::path image_dir =  fs::path("images") / cface.substr(1,2);
 
 	if (!fs::exists(image_dir))
 	{
