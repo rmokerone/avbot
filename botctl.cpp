@@ -219,7 +219,7 @@ void on_bot_command(channel_identifier cid, avbotmsg avmessage, send_avchannel_m
 		channelname, _1
 	);
 
-	std::string message = mybot.format_message_for_textIM(avmessage);
+	std::string message = avmessage.to_plain_text();
 
 	if (message == ".qqbot help")
 	{

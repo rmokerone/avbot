@@ -286,8 +286,10 @@ static void avbot_log(std::string channel_name, channel_identifier id, avbotmsg 
 		rowid =  sqlite_api::sqlite3_last_insert_rowid(
 			dynamic_cast<soci::sqlite3_session_backend*>(db.get_backend())->conn_
 		);
-
+		try{
 		logfile.add_log(channel_name, linemessage, rowid);
+		}catch(const std::runtime_error&)
+		{}
 	}
 	else
 	{
@@ -679,7 +681,7 @@ int main(int argc, char * argv[])
 				// 好, 配置 avchannel !
 				//mybot.add_channel();
 
-				std::string channel_name = subdirs.string();
+				std::string channel_name = subdirs.filename().string();
 
 				auto channel = std::make_shared<avchannel>(channel_name);
 
