@@ -156,21 +156,6 @@ static void async_fetch_cface_cb(const boost::system::error_code& ec, read_strea
 	callback(ec);
 }
 
-void webqq::async_fetch_cface_std_saver( boost::system::error_code ec, boost::asio::streambuf& buf, std::string cface, boost::filesystem::path parent_path)
-{
-	if (!fs::exists(parent_path))
-	{
-		fs::create_directories(parent_path);
-	}
-
-	if (!ec)
-	{
-		std::string imgfilename = (parent_path / cface).string();
-		std::ofstream cfaceimg(imgfilename.c_str(), std::ofstream::binary|std::ofstream::out);
-		cfaceimg.write(boost::asio::buffer_cast<const char*>(buf.data()), boost::asio::buffer_size(buf.data()));
-	}
-}
-
 void webqq::async_fetch_cface(boost::asio::io_service& io_service, const qqMsgCface& cface, boost::asio::streambuf& buf, std::function<void(boost::system::error_code ec)> callback)
 {
 	std::string url = boost::str(

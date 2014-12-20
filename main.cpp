@@ -204,6 +204,41 @@ struct build_group_has_qq
 	}
 };
 
+std::string img_cacher(std::string cface)
+{
+	std::string ret;
+	fs::path image_dir =  fs::path("images") / cface.substr(0,2);
+
+	fs::path image_file = image_dir / cface;
+
+	if (fs::exists(image_file) && fs::is_regular_file(image_file))
+	{
+		std::string imgfilename = image_file.string();
+
+		auto reserved = fs::file_size(image_file);
+		ret.resize(reserved);
+
+		std::ifstream cfaceimg(imgfilename.c_str(), std::ofstream::binary|std::ofstream::in);
+		auto s = cfaceimg.read(&ret[0], ret.capacity());
+		ret.resize(s);
+	}
+	return ret;
+}
+
+static void img_saver(std::string cface, std::string data)
+{
+	fs::path image_dir =  fs::path("images") / cface.substr(0,2);
+
+	if (!fs::exists(image_dir))
+	{
+		fs::create_directories(image_dir);
+	}
+
+	std::string imgfilename = (image_dir/cface).string();
+	std::ofstream cfaceimg(imgfilename.c_str(), std::ofstream::binary|std::ofstream::out);
+	cfaceimg.write(&data[0], data.size());
+}
+
 static std::string imgurlformater(std::string cface, std::string baseurl)
 {
 	return avhttp::detail::escape_path(
@@ -737,6 +772,9 @@ int main(int argc, char * argv[])
 	{
 		mybot.m_urlformater = boost::bind(&imgurlformater, _1, weblogbaseurl);
 	}
+
+	mybot.m_image_saver = img_saver;
+	mybot.m_image_cacher = img_cacher;
 
 	if (rpcport > 0)
 	{
