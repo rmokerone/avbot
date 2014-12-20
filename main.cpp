@@ -219,8 +219,7 @@ std::string img_cacher(std::string cface)
 		ret.resize(reserved);
 
 		std::ifstream cfaceimg(imgfilename.c_str(), std::ofstream::binary|std::ofstream::in);
-		auto s = cfaceimg.read(&ret[0], ret.capacity());
-		ret.resize(s);
+		cfaceimg.read(&ret[0], ret.size());
 	}
 	return ret;
 }
