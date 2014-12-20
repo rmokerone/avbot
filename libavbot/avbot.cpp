@@ -502,6 +502,8 @@ struct send_avbot_message_visitor : public boost::static_visitor<>
 	template<class T>
 	void operator()(T &) const
 	{
+		boost::system::error_code ec;
+		_yield_context(ec);
 	}
 
 	void operator()(std::shared_ptr<webqq::webqq>& qq) const
@@ -517,6 +519,9 @@ struct send_avbot_message_visitor : public boost::static_visitor<>
 		std::string text_msg = _bot.format_message_for_textIM(_msg);
 
 		irc_account->chat(_id.room, text_msg);
+
+		boost::system::error_code ec;
+		_yield_context(ec);
 	}
 
 	void operator()(std::shared_ptr<xmpp>& xmpp_account) const
@@ -525,6 +530,8 @@ struct send_avbot_message_visitor : public boost::static_visitor<>
 		std::string text_msg = _bot.format_message_for_textIM(_msg);
 
 		xmpp_account->send_room_message(_id.room, text_msg);
+		boost::system::error_code ec;
+		_yield_context(ec);
 	}
 
 	void operator()(std::shared_ptr<avim>& avim_account) const
@@ -533,6 +540,8 @@ struct send_avbot_message_visitor : public boost::static_visitor<>
 		std::string text_msg = _bot.format_message_for_textIM(_msg);
 
 		//avim_account->send_room_message(_id.room, text_msg);
+		boost::system::error_code ec;
+		_yield_context(ec);
 	}
 
 	send_avbot_message_visitor(avbot& bot, channel_identifier& id, avbotmsg& msg, Handler& yield_context)
