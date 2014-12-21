@@ -14,9 +14,14 @@ avim::~avim()
 	m_impl->m_quitting = true;
 }
 
-void avim::on_message(boost::function<void(std::string reciver, std::string sender, std::vector<avim_msg>)> cb)
+void avim::on_message(std::function<void(std::string reciver, std::string sender, std::vector<avim_msg>)> cb)
 {
 	m_impl->on_message.connect(cb);
+}
+
+void avim::on_group_created(std::function<void(std::string)> cb)
+{
+	m_impl->on_group_created.connect(cb);
 }
 
 void avim::send_group_message(std::vector<avim_msg> m)

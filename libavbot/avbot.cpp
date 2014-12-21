@@ -121,7 +121,7 @@ std::shared_ptr<avchannel> avbot::get_channel(channel_identifier cid)
 	return std::shared_ptr<avchannel>();
 }
 
-void avbot::callback_on_irc_message(std::shared_ptr<irc::client> irc_account, irc::irc_msg pMsg )
+void avbot::callback_on_irc_message(std::weak_ptr<irc::client>, irc::irc_msg pMsg )
 {
 	channel_identifier channdl_id;
 	avbotmsg message;
@@ -146,7 +146,7 @@ void avbot::callback_on_irc_message(std::shared_ptr<irc::client> irc_account, ir
 	on_message(channdl_id, message);
 }
 
-void avbot::callback_on_qq_group_message(std::shared_ptr<webqq::webqq> qq_account, std::string group_code, std::string who, std::vector<webqq::qqMsg> msg, boost::asio::yield_context yield_context)
+void avbot::callback_on_qq_group_message(std::weak_ptr< webqq::webqq > qq_account, std::string group_code, std::string who, std::vector< webqq::qqMsg > msg, boost::asio::yield_context yield_context)
 {
 	channel_identifier channel_id;
 	avbotmsg message;
@@ -154,7 +154,7 @@ void avbot::callback_on_qq_group_message(std::shared_ptr<webqq::webqq> qq_accoun
 	channel_id.protocol = "qq";
 	channel_id.room = group_code;
 
-	webqq::qqGroup_ptr group = qq_account->get_Group_by_gid( group_code );
+	webqq::qqGroup_ptr group = qq_account.lock()->get_Group_by_gid( group_code );
 	std::string groupname = group_code;
 
 	if( group ){
@@ -263,7 +263,7 @@ void avbot::callback_on_qq_group_message(std::shared_ptr<webqq::webqq> qq_accoun
 	on_message(channel_id, message);
 }
 
-void avbot::callback_on_xmpp_group_message(std::shared_ptr<xmpp>, std::string xmpproom, std::string who, std::string msg )
+void avbot::callback_on_xmpp_group_message(std::weak_ptr< xmpp >, std::string xmpproom, std::string who, std::string msg )
 {
 	channel_identifier channel_id;
 	avbotmsg message;
@@ -334,21 +334,24 @@ void avbot::callback_on_avim(std::string reciver, std::string sender, std::vecto
 	on_message(channel_id, message);
 }
 
-void avbot::callback_on_std_account(std::shared_ptr<avaccount> std_account, channel_identifier i, const avbotmsg& m)
+void avbot::callback_on_std_account(std::weak_ptr<avaccount> std_account, channel_identifier i, const avbotmsg& m)
 {
 	on_message(i,m);
 }
 
-void avbot::callback_on_qq_group_found(std::shared_ptr<webqq::webqq> qq_account, webqq::qqGroup_ptr group)
+void avbot::callback_on_qq_group_found(std::weak_ptr<webqq::webqq> qq_account, webqq::qqGroup_ptr group)
 {
 	channel_identifier channel_id;
 	channel_id.protocol = "qq";
 	channel_id.room = group->qqnum;
+	auto r = qq_account.lock();
+	if (!r)
+		return;
 
-	m_account_mapping.insert(std::make_pair(channel_id, qq_account));
+	m_account_mapping.insert(std::make_pair(channel_id, r));
 }
 
-void avbot::callback_on_qq_group_newbee(std::shared_ptr<webqq::webqq>, webqq::qqGroup_ptr group, webqq::qqBuddy_ptr buddy)
+void avbot::callback_on_qq_group_newbee(std::weak_ptr<webqq::webqq>, webqq::qqGroup_ptr group, webqq::qqBuddy_ptr buddy)
 {
 	channel_identifier channel_id;
 	avbotmsg message;
@@ -376,21 +379,46 @@ void avbot::callback_on_qq_group_newbee(std::shared_ptr<webqq::webqq>, webqq::qq
 	on_message(channel_id, message);
 }
 
-void avbot::callback_on_xmpp_room_joined(std::shared_ptr<xmpp> xmpp_account, std::string roomname)
+void avbot::callback_on_xmpp_room_joined(std::weak_ptr<xmpp> xmpp_account, std::string roomname)
 {
 	channel_identifier channel_id;
 	channel_id.protocol = "xmpp";
 	channel_id.room = roomname;
-	m_account_mapping.insert(std::make_pair(channel_id, xmpp_account));
+
+	auto r = xmpp_account.lock();
+	if (!r)
+		return;
+
+	m_account_mapping.insert(std::make_pair(channel_id, r));
 }
 
-void avbot::callback_on_irc_room_joined(std::shared_ptr<irc::client> irc_account, std::string roomname)
+void avbot::callback_on_irc_room_joined(std::weak_ptr<irc::client> irc_account, std::string roomname)
 {
 	channel_identifier channel_id;
 	channel_id.protocol = "irc";
 	channel_id.room = roomname;
-	m_account_mapping.insert(std::make_pair(channel_id, irc_account));
+	auto r = irc_account.lock();
+	if (!r)
+		return;
+	m_account_mapping.insert(std::make_pair(channel_id, r));
 }
+
+void avbot::callback_on_avim_room_created(std::weak_ptr<avim> avim_account, std::string n)
+{
+	channel_identifier channel_id;
+	channel_id.protocol = "avim";
+	channel_id.room = n;
+
+	auto r = avim_account.lock();
+	if (!r)
+		return;
+
+	if (m_account_mapping.find(channel_id) == m_account_mapping.end())
+	{
+		m_account_mapping.insert(std::make_pair(channel_id, r));
+	}
+}
+
 
 std::shared_ptr<webqq::webqq> avbot::add_qq_account(std::string qqnumber, std::string password, avbot::need_verify_image cb, bool no_persistent_db)
 {
@@ -401,12 +429,14 @@ std::shared_ptr<webqq::webqq> avbot::add_qq_account(std::string qqnumber, std::s
 		cb(img);
 	});
 
-	qq_account->on_group_found(std::bind(&avbot::callback_on_qq_group_found, this, qq_account, std::placeholders::_1));
-	qq_account->on_group_newbee(std::bind(&avbot::callback_on_qq_group_newbee, this, qq_account, std::placeholders::_1, std::placeholders::_2));
+	std::weak_ptr<webqq::webqq> account = qq_account;
 
-	qq_account->on_group_msg([this, qq_account](std::string group_code, std::string who, const std::vector<webqq::qqMsg>& msg)
+	qq_account->on_group_found(std::bind(&avbot::callback_on_qq_group_found, this, account, std::placeholders::_1));
+	qq_account->on_group_newbee(std::bind(&avbot::callback_on_qq_group_newbee, this, account, std::placeholders::_1, std::placeholders::_2));
+
+	qq_account->on_group_msg([this, account](std::string group_code, std::string who, const std::vector<webqq::qqMsg>& msg)
 	{
-		boost::asio::spawn(m_io_service, std::bind(&avbot::callback_on_qq_group_message, this, qq_account, group_code, who, msg, std::placeholders::_1));
+		boost::asio::spawn(m_io_service, std::bind(&avbot::callback_on_qq_group_message, this, account.lock(), group_code, who, msg, std::placeholders::_1));
 	});
 
 	m_qq_accounts.push_back(qq_account);
@@ -432,8 +462,10 @@ std::shared_ptr<irc::client> avbot::add_irc_account( std::string nick, std::stri
 
 	auto irc_account = std::make_shared<irc::client>(std::ref(m_io_service),nick, password, server);
 
-	irc_account->on_privmsg_message(std::bind(&avbot::callback_on_irc_message, this, irc_account, std::placeholders::_1));
-	irc_account->on_new_room(std::bind(&avbot::callback_on_irc_room_joined, this, irc_account, std::placeholders::_1));
+	std::weak_ptr<irc::client> account = irc_account;
+
+	irc_account->on_privmsg_message(std::bind(&avbot::callback_on_irc_message, this, account, std::placeholders::_1));
+	irc_account->on_new_room(std::bind(&avbot::callback_on_irc_room_joined, this, account, std::placeholders::_1));
 
 	m_irc_accounts.push_back(irc_account);
 	return irc_account;
@@ -442,8 +474,11 @@ std::shared_ptr<irc::client> avbot::add_irc_account( std::string nick, std::stri
 std::shared_ptr<xmpp> avbot::add_xmpp_account( std::string user, std::string password, std::string nick, std::string server )
 {
 	auto xmpp_account = std::make_shared<xmpp>(std::ref(m_io_service), user, password, server, nick);
-	xmpp_account->on_room_message(std::bind(&avbot::callback_on_xmpp_group_message, this,xmpp_account, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	xmpp_account->on_room_joined(std::bind(&avbot::callback_on_xmpp_room_joined, this, xmpp_account, std::placeholders::_1));
+
+	std::weak_ptr<xmpp> account = xmpp_account;
+
+	xmpp_account->on_room_message(std::bind(&avbot::callback_on_xmpp_group_message, this,account, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	xmpp_account->on_room_joined(std::bind(&avbot::callback_on_xmpp_room_joined, this, account, std::placeholders::_1));
 	m_xmpp_accounts.push_back(xmpp_account);
 	return xmpp_account;
 }
@@ -461,6 +496,8 @@ std::shared_ptr<avim> avbot::add_avim_account(std::string key, std::string cert,
 	auto avim_account = std::make_shared<avim>(std::ref(m_io_service), key, cert, groupdeffile);
 
 	avim_account->on_message(std::bind(&avbot::callback_on_avim, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	avim_account->on_group_created(std::bind(&avbot::callback_on_avim_room_created, this, avim_account, std::placeholders::_1));
+
 	m_avim_accounts.push_back(avim_account);
 	return avim_account;
 }

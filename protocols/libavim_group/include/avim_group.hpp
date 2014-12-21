@@ -1,6 +1,6 @@
 #pragma once
 #include <boost/asio/io_service.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 class avim_group_impl;
 
@@ -16,8 +16,8 @@ public:
 	avim(boost::asio::io_service& io, std::string key, std::string cert, std::string groupdeffile);
 	~avim();
 
-	void on_message(boost::function<void(std::string reciver, std::string sender, std::vector<avim_msg>)>);
-
+	void on_message(std::function<void(std::string reciver, std::string sender, std::vector<avim_msg>)>);
+	void on_group_created(std::function<void(std::string)>);
 	void send_group_message(std::vector<avim_msg>);
 
 private:

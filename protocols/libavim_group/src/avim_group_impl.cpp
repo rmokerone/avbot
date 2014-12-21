@@ -49,6 +49,9 @@ avim_group_impl::~avim_group_impl()
 
 void avim_group_impl::start()
 {
+	m_con.reset(new avjackif(m_io_service));
+	m_con->set_pki(m_key, m_cert);
+
 	recive_client_message.connect(std::bind(&avim_group_impl::forward_client_message, shared_from_this(), std::placeholders::_1));
 	boost::asio::spawn(m_io_service, std::bind(&avim_group_impl::internal_loop_coroutine, shared_from_this(), std::placeholders::_1));
 
@@ -85,9 +88,6 @@ void avim_group_impl::send_group_message(std::vector<avim_msg> m)
 
 void avim_group_impl::internal_login_coroutine(boost::asio::yield_context yield_context)
 {
-	m_con.reset(new avjackif(m_io_service));
-	m_con->set_pki(m_key, m_cert);
-
 	try
 	{
 		if (!m_con->async_connect("avim.avplayer.org", "24950", yield_context))
