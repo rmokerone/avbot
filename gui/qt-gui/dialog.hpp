@@ -14,14 +14,14 @@ class Dialog : public QDialog
 
 public:
 	Dialog(
-		std::string &qqnum, std::string &qqpwd, 
-		std::string &ircnick, std::string &ircroom, std::string &ircpwd, 
+		std::string &qqnum, std::string &qqpwd,
+		std::string &ircnick, std::string &ircroom, std::string &ircpwd,
 		std::string &xmppuser, std::string &xmppserver, std::string &xmpppwd, std::string &xmpproom, std::string &xmppnick);
 	~Dialog();
 
 
 
-private slots:
+private Q_SLOTS:
 	void on_enable_irc_toggled(bool checked);
 
 	void on_enable_xmpp_toggled(bool checked);

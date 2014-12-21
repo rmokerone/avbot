@@ -1,8 +1,20 @@
-find_package(Qt4 REQUIRED QtCore QtGui)
-include(${QT_USE_FILE})
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
-QT4_WRAP_UI(ui_dialog dialog.ui)
-QT4_WRAP_CPP(moc_dialog dialog.h)
-add_library(avbotgui STATIC dialog.h dialog.cpp ${ui_dialog} ${moc_dialog})
-target_link_libraries(avbotgui ${QT_LIBRARIES})
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
 
+cmake_policy(SET CMP0020 NEW)
+add_definitions(-DQT_NO_KEYWORDS)
+
+find_package(Qt5Widgets REQUIRED)
+
+file(GLOB HDRS include/*.h*)
+file(GLOB SRCS *.cpp *.h*)
+file(GLOB UIS *.ui)
+
+qt5_wrap_ui(UI_SRCS ${UIS})
+qt5_add_resources(RC_SRCS avbot.qrc)
+
+set(SRCS ${SRCS} ${UI_SRCS} ${RC_SRCS})
+
+
+add_library(avbotgui ${SRCS})
+target_link_libraries(avbotgui Qt5::Widgets)

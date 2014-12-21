@@ -1,4 +1,4 @@
-#include "dialog.h"
+#include "dialog.hpp"
 #include "ui_dialog.h"
 #include <QTextCodec>
 #include <iostream>
