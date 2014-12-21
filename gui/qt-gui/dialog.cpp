@@ -1,6 +1,6 @@
 #include "dialog.hpp"
 #include "ui_dialog.h"
-#include <QTextCodec>
+#include <QString>
 #include <iostream>
 
 Dialog::Dialog(

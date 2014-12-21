@@ -1,5 +1,8 @@
 ﻿
 #include "avchannel.hpp"
+#ifdef HAVE_SYSTEMD
+#include <systemd/sd-daemon.h>
+#endif
 
 avchannel::avchannel(std::string name)
 	: m_name(std::move(name))
@@ -15,7 +18,13 @@ bool avchannel::can_handle(channel_identifier channel_id) const
 
 void avchannel::handle_message(channel_identifier channel_id, avbotmsg msg, send_avbot_message_t send_avbot_message, boost::asio::yield_context yield_context)
 {
-    // 开始处理本频道消息
+#ifdef HAVE_SYSTEMD
+	// watchdog timer logic
+	if (channel_id.protocol == "qq")
+		sd_notify(0, "WATCHDOG=1");
+#endif
+
+	// 开始处理本频道消息
     for (auto room : m_rooms)
     {
         // 避免重复发送给自己
