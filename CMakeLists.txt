@@ -127,21 +127,19 @@ find_package(SQLite3)
 
 if(NOT SQLite3_FOUND)
 
-if(CMAKE_MAJOR_VERSION LESS 3)
-get_target_property(sqlite_lib_location sqlite3 LOCATION)
-else()
-set(sqlite_lib_location  $<TARGET_LINKER_FILE:sqlite3>)
-endif()
-message (STATUS "sqlite_lib_location == ${sqlite_lib_location}")
+	add_subdirectory(third_party/sqlite)
 
-set(SQLITE_ROOT_DIR "${PROJECT_BINARY_DIR}/third_party/sqlite/")
-set(SQLITE3_INCLUDES "${PROJECT_SOURCE_DIR}/third_party/sqlite/include/" CACHE PATH "include dir for sqlite3.h")
-set(SQLITE3_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/third_party/sqlite/include/")
-set(SQLITE3_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/third_party/sqlite/include/" CACHE PATH "include dir for sqlite3.h" FORCE)
-set(SQLITE3_LIBRARIES $<TARGET_LINKER_FILE:sqlite3>)
-set(SQLITE3_LIBRARIES $<TARGET_LINKER_FILE:sqlite3> CACHE FILEPATH "lib file to link to sqlite")
-set(SQLITE3_LIBRARY "sqlite3")
-set(SQLite3_FOUND ON)
+	set(sqlite_lib_location  $<TARGET_LINKER_FILE:sqlite3>)
+	message (STATUS "sqlite_lib_location == ${sqlite_lib_location}")
+
+	set(SQLITE_ROOT_DIR "${PROJECT_BINARY_DIR}/third_party/sqlite/")
+	set(SQLITE3_INCLUDES "${PROJECT_SOURCE_DIR}/third_party/sqlite/include/" CACHE PATH "include dir for sqlite3.h")
+	set(SQLITE3_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/third_party/sqlite/include/")
+	set(SQLITE3_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/third_party/sqlite/include/" CACHE PATH "include dir for sqlite3.h" FORCE)
+	set(SQLITE3_LIBRARIES $<TARGET_LINKER_FILE:sqlite3>)
+	set(SQLITE3_LIBRARIES $<TARGET_LINKER_FILE:sqlite3> CACHE FILEPATH "lib file to link to sqlite")
+	set(SQLITE3_LIBRARY "sqlite3")
+	set(SQLite3_FOUND ON)
 
 endif()
 
@@ -162,7 +160,6 @@ include_directories(${SOCI_INCLUDE_DIRS}/sqlite3)
 
 endif()
 
-add_subdirectory(third_party/sqlite)
 
 if(WITH_QT_GUI)
 	add_subdirectory(gui/qt-gui)
