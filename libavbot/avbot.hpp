@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <atomic>
@@ -99,7 +99,7 @@ public:
 	std::shared_ptr<xmpp> add_xmpp_account(std::string user, std::string password, std::string nick="avbot", std::string server="");
 
 	// 调用这个设置avim账户
-	std::shared_ptr<avim> add_avim_account(std::string key, std::string cert);
+	std::shared_ptr<avim> add_avim_account( std::string key, std::string cert, std::string groupdeffile );
 
 	// 调用这个添加其他帐号!
 	void add_std_account(std::shared_ptr<avaccount>);

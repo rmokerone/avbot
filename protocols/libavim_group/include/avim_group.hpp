@@ -13,7 +13,7 @@ struct avim_msg{
 class avim
 {
 public:
-	avim(boost::asio::io_service& io, std::string key, std::string cert);
+	avim(boost::asio::io_service& io, std::string key, std::string cert, std::string groupdeffile);
 	~avim();
 
 	void on_message(boost::function<void(std::string reciver, std::string sender, std::vector<avim_msg>)>);

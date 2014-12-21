@@ -12,7 +12,7 @@
 class avim_group_impl : public std::enable_shared_from_this<avim_group_impl>
 {
 public:
-	avim_group_impl(boost::asio::io_service& io, std::string key, std::string cert);
+	avim_group_impl(boost::asio::io_service& io, std::string key, std::string cert, std::string groupdeffile);
 	~avim_group_impl();
 
 public:
@@ -21,10 +21,13 @@ public:
 	void start_login();
 	// callback when there is a message
 	boost::signals2::signal<void(std::string reciver, std::string sender, std::vector<avim_msg>)> on_message;
+	boost::atomic<bool> m_quitting;
 
 private:
 	void internal_login_coroutine(boost::asio::yield_context);
 	void internal_loop_coroutine(boost::asio::yield_context);
+
+	void forward_client_message( std::string );
 
 private:
 	boost::asio::io_service& m_io_service;
@@ -37,5 +40,7 @@ private:
 	std::shared_ptr<avjackif> m_con;
 	std::string m_me_addr;
 
-	boost::atomic<bool> m_quitting;
+    std::string m_groupdef;
+
+	boost::signals2::signal<void(std::string content)> recive_client_message;
 };

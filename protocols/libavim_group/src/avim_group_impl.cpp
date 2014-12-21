@@ -1,16 +1,44 @@
-
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
 #include <iostream>
+#include <fstream>
 #include "avim_group_impl.hpp"
 #include <avproto/easyssl.hpp>
 
-avim_group_impl::avim_group_impl(boost::asio::io_service& io, std::string key, std::string cert)
+#include "group.pb.h"
+
+static std::vector<std::string> get_lines(std::string filename)
+{
+	std::vector<std::string> ret;
+	// 打开 groupdef 文件
+	// 为每个 avim 执行一次 send
+	if(fs::exists(filename) && fs::is_regular_file(filename))
+	{
+		std::ifstream groupdef(filename.c_str());
+		for(;!groupdef.eof();)
+		{
+			std::string l;
+			std::getline(groupdef, l);
+
+			if(!l.empty())
+				ret.push_back(l);
+		}
+	}
+	return ret;
+}
+
+avim_group_impl::avim_group_impl(boost::asio::io_service& io, std::string key, std::string cert, std::string groupdeffile)
 	: m_io_service(io)
 	, m_core(io)
+	, m_groupdef(groupdeffile)
 {
 	m_quitting = false;
 
+
+
 	m_key = load_RSA_from_file(key);
 	m_cert = load_X509_from_file(cert);
+
 }
 
 avim_group_impl::~avim_group_impl()
@@ -20,6 +48,7 @@ avim_group_impl::~avim_group_impl()
 
 void avim_group_impl::start()
 {
+	recive_client_message.connect(std::bind(&avim_group_impl::forward_client_message, shared_from_this(), std::placeholders::_1));
 	boost::asio::spawn(m_io_service, std::bind(&avim_group_impl::internal_loop_coroutine, shared_from_this(), std::placeholders::_1));
 
 	start_login();
@@ -75,31 +104,69 @@ void avim_group_impl::internal_loop_coroutine(boost::asio::yield_context yield_c
 
 		m_core.async_recvfrom(sender, data, yield_context);
 
-		// 解码 group 消息
-
-		if (!is_control_message(data))
+		if(is_group_message(data))
 		{
-			if (!is_encrypted_message(data))
+			if (group_message_get_sender(data) == sender)
 			{
-				auto im =  decode_im_message(data);
+				// 转发
+				recive_client_message(data);
 
-				std::vector<avim_msg> avmsg;
-
-				for (const message::avim_message& im_item : im.impkt.avim())
+				// 看是否能解码 group 消息
+				if (!is_encrypted_message(data))
 				{
-					avim_msg item;
- 					if (im_item.has_item_text())
+					auto im = decode_im_message(data);
+
+					std::vector<avim_msg> avmsg;
+
+					for (const message::avim_message& im_item : im.impkt.avim())
 					{
-						item.text = im_item.item_text().text();
+						avim_msg item;
+						if (im_item.has_item_text())
+						{
+							item.text = im_item.item_text().text();
+						}
+						if (im_item.has_item_image())
+						{
+							item.image = im_item.item_image().image();
+						}
+						avmsg.push_back(item);
 					}
-					if (im_item.has_item_image())
-					{
-						item.image = im_item.item_image().image();
-					}
-					avmsg.push_back(item);
+					on_message(m_me_addr, im.sender, avmsg);
 				}
-				on_message(m_me_addr, im.sender, avmsg);
 			}
 		}
+        else if (is_control_message(data))
+		{
+			// 无非就是获取群列表嘛!
+			std::string _sender;
+			auto bufmsg = decode_control_message(data, _sender);
+
+			if (bufmsg->GetTypeName() == "proto.group.list_request")
+			{
+				auto list_request= reinterpret_cast<proto::group::list_request*>(bufmsg.get());
+
+				proto::group::list_response list_response;
+				list_response.set_result(proto::group::list_response::OK);
+
+				auto avs =  get_lines(m_groupdef);
+
+				for ( auto a : avs )
+					list_response.add_list()->assign(a);
+
+				m_core.async_sendto(sender, encode_control_message(list_response), yield_context);
+			}
+		} 
+	}
+}
+
+
+void avim_group_impl::forward_client_message(std::string data)
+{
+	auto avs = get_lines(m_groupdef);
+	// 打开 groupdef 文件
+	// 为每个 avim 执行一次 send
+	for (auto avaddress : avs )
+	{
+		m_core.async_sendto(avaddress, data, [](boost::system::error_code){});
 	}
 }

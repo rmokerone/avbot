@@ -456,9 +456,9 @@ void avbot::set_mail_account( std::string mailaddr, std::string password, std::s
 	m_mail_account->async_fetch_mail(boost::bind(&avbot::callback_on_mail, this, _1, _2));
 }
 
-std::shared_ptr<avim> avbot::add_avim_account(std::string key, std::string cert)
+std::shared_ptr<avim> avbot::add_avim_account(std::string key, std::string cert, std::string groupdeffile)
 {
-	auto avim_account = std::make_shared<avim>(std::ref(m_io_service), key, cert);
+	auto avim_account = std::make_shared<avim>(std::ref(m_io_service), key, cert, groupdeffile);
 
 	avim_account->on_message(std::bind(&avbot::callback_on_avim, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	m_avim_accounts.push_back(avim_account);
