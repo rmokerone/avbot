@@ -18,7 +18,7 @@ add_library(webqq STATIC
 	${AVHTTP_IMPL_HEADERS}
 )
 
-target_link_libraries(webqq ${Boost_LIBRARIES} soci_core_static)
+target_link_libraries(webqq ${Boost_LIBRARIES} ${SOCI_LIBRARY})
 INCLUDE (CheckLibraryExists)
 if(NOT WIN32)
 check_library_exists(rt clock_gettime "" HAVE_CLOCK_GETTIME)

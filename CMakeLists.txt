@@ -45,6 +45,7 @@ option(ENABLE_LIBGCC_STATIC "link to static libgcc" OFF)
 option(WITH_ICONV "boost is build with iconv" ON)
 option(WITH_ICU "boost is build with icu " OFF)
 option(WITH_QT_GUI "a qt gui interface" OFF)
+option(USE_INTERNAL_SOCI "use bundled soci lib" WIN32)
 
 if(WIN32)
 	set(ENABLE_LIBGCC_STATIC ON)
@@ -120,7 +121,11 @@ add_definitions(-DAVHTTP_ENABLE_OPENSSL -DAVHTTP_DISABLE_MULTI_DOWNLOAD -DDISABL
 configure_file(avbot.rc.in ${PROJECT_BINARY_DIR}/avbot.rc)
 configure_file(avbot.service.in ${PROJECT_BINARY_DIR}/avbot.service)
 
-add_subdirectory(third_party/sqlite)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/third_party/soci/src/cmake/modules")
+
+find_package(SQLite3)
+
+if(NOT SQLite3_FOUND)
 
 if(CMAKE_MAJOR_VERSION LESS 3)
 get_target_property(sqlite_lib_location sqlite3 LOCATION)
@@ -135,20 +140,33 @@ set(SQLITE3_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/third_party/sqlite/include/")
 set(SQLITE3_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/third_party/sqlite/include/" CACHE PATH "include dir for sqlite3.h" FORCE)
 set(SQLITE3_LIBRARIES $<TARGET_LINKER_FILE:sqlite3>)
 set(SQLITE3_LIBRARIES $<TARGET_LINKER_FILE:sqlite3> CACHE FILEPATH "lib file to link to sqlite")
-set(SQLITE3_LIBRARY "")
+set(SQLITE3_LIBRARY "sqlite3")
 set(SQLite3_FOUND ON)
 
-add_subdirectory(third_party/soci/src EXCLUDE_FROM_ALL)
-
-
-if(WITH_QT_GUI)
-	add_subdirectory(gui/qt-gui)
 endif()
 
+IF(USE_INTERNAL_SOCI)
+add_subdirectory(third_party/soci/src EXCLUDE_FROM_ALL)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(third_party/soci/src/core)
 include_directories(third_party/soci/src/backends/sqlite3)
 include_directories(third_party/sqlite/include)
+set(${SOCI_LIBRARY} soci_core_static)
+set(${SOCI_sqlite3_PLUGIN} soci_sqlite3_static  sqlite3)
+else()
+
+find_package(Soci REQUIRED)
+include_directories(${SOCI_INCLUDE_DIRS})
+include_directories(${SOCI_INCLUDE_DIRS}/sqlite3)
+#include_directories(/usr/include/soci/sqlite3)
+
+endif()
+
+add_subdirectory(third_party/sqlite)
+
+if(WITH_QT_GUI)
+	add_subdirectory(gui/qt-gui)
+endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR})
@@ -252,7 +270,7 @@ if(APPLE AND WITH_ICONV)
 	target_link_libraries(avbot -liconv)
 endif()
 
-target_link_libraries(avbot avimproto avim++ libavbot avlog extension soci_core_static soci_sqlite3_static sqlite3)
+target_link_libraries(avbot avimproto avim++ libavbot avlog extension ${SOCI_LIBRARY} ${SOCI_sqlite3_PLUGIN} ${SQLITE3_LIBRARIES})
 
 target_link_libraries(avbot ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
