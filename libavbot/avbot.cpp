@@ -617,20 +617,23 @@ struct send_avbot_message_visitor : public boost::static_visitor<>
 
 void avbot::send_avbot_message(channel_identifier id, avbotmsg msg, boost::asio::yield_context yield_context)
 {
+	using namespace boost::asio;
+
+	boost::asio::detail::async_result_init<boost::asio::yield_context, void(boost::system::error_code)>
+		init((boost::asio::yield_context&&)yield_context);
+
 	if (m_account_mapping.find(id) != m_account_mapping.end())
 	{
-		using namespace boost::asio;
-
-		boost::asio::detail::async_result_init<boost::asio::yield_context, void(boost::system::error_code)>
-			init((boost::asio::yield_context&&)yield_context);
-
 		send_avbot_message_visitor<BOOST_ASIO_HANDLER_TYPE(boost::asio::yield_context, void(boost::system::error_code))>
 			visitor(*this, id, msg, init.handler);
-
 		boost::apply_visitor(visitor, m_account_mapping[id]);
-		return init.result.get();
 	}
-	return ;
+	else
+	{
+		boost::system::error_code ec;
+		m_io_service.post(std::bind(init.handler, ec));
+	}
+	return init.result.get();
 }
 
 void avbot::send_broadcast_message(std::string channel_name, avbotmsg msg)
