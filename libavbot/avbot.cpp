@@ -1,4 +1,5 @@
-﻿#include <boost/range/algorithm/remove_if.hpp>
+﻿#include <algorithm>
+#include <boost/range/algorithm/remove_if.hpp>
 #include <boost/regex.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/filesystem.hpp>
@@ -348,7 +349,7 @@ void avbot::callback_on_qq_group_found(std::weak_ptr<webqq::webqq> qq_account, w
 	if (!r)
 		return;
 
-	m_account_mapping.insert(std::make_pair(channel_id, r));
+	m_account_mapping.push_back(std::make_pair(channel_id, accounts_t(r)));
 }
 
 void avbot::callback_on_qq_group_newbee(std::weak_ptr<webqq::webqq>, webqq::qqGroup_ptr group, webqq::qqBuddy_ptr buddy)
@@ -388,36 +389,28 @@ void avbot::callback_on_xmpp_room_joined(std::weak_ptr<xmpp> xmpp_account, std::
 	auto r = xmpp_account.lock();
 	if (!r)
 		return;
-
-	m_account_mapping.insert(std::make_pair(channel_id, r));
+	m_account_mapping.push_back(std::make_pair(channel_id, r));
 }
 
 void avbot::callback_on_irc_room_joined(std::weak_ptr<irc::client> irc_account, std::string roomname)
 {
-	channel_identifier channel_id;
-	channel_id.protocol = "irc";
-	channel_id.room = roomname;
+	channel_identifier channel_id("irc", roomname);
+
 	auto r = irc_account.lock();
 	if (!r)
 		return;
-	m_account_mapping.insert(std::make_pair(channel_id, r));
+	m_account_mapping.push_back(std::make_pair(channel_id, accounts_t(r)));
 }
 
 void avbot::callback_on_avim_room_created(std::weak_ptr<avim> avim_account, std::string n)
 {
-	channel_identifier channel_id;
-	channel_id.protocol = "avim";
-	channel_id.room = n;
+	channel_identifier channel_id("avim", n);
 
 	auto r = avim_account.lock();
 	if (!r)
 		return;
-
-	m_account_mapping.insert(std::make_pair(channel_id, r));
-
-	
+	m_account_mapping.push_back(std::make_pair(channel_id, accounts_t(r)));
 }
-
 
 std::shared_ptr<webqq::webqq> avbot::add_qq_account(std::string qqnumber, std::string password, avbot::need_verify_image cb, bool no_persistent_db)
 {
@@ -622,11 +615,17 @@ void avbot::send_avbot_message(channel_identifier id, avbotmsg msg, boost::asio:
 	boost::asio::detail::async_result_init<boost::asio::yield_context, void(boost::system::error_code)>
 		init((boost::asio::yield_context&&)yield_context);
 
-	if (m_account_mapping.find(id) != m_account_mapping.end())
+	auto comp = [&id](const std::pair<channel_identifier, accounts_t>& a) -> bool
+	{
+		return a.first == id;
+	};
+
+	auto it = std::find_if(m_account_mapping.begin(), m_account_mapping.end(), comp);
+	if ( it != m_account_mapping.end())
 	{
 		send_avbot_message_visitor<BOOST_ASIO_HANDLER_TYPE(boost::asio::yield_context, void(boost::system::error_code))>
 			visitor(*this, id, msg, init.handler);
-		boost::apply_visitor(visitor, m_account_mapping[id]);
+		boost::apply_visitor(visitor, it->second);
 	}
 	else
 	{

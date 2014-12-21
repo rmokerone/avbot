@@ -106,9 +106,6 @@ struct channel_identifier
 	channel_identifier& operator =(channel_identifier&&) = default;
 	channel_identifier& operator =(const channel_identifier&) = default;
 
-
-	channel_identifier(std::pair<std::string, std::string> p)
-		: protocol(p.first) , room(p.second) {}
 	channel_identifier(std::string p, std::string r)
 		: protocol(p) , room(r) {}
 

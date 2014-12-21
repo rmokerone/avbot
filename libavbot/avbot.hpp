@@ -26,7 +26,9 @@
 class BOOST_SYMBOL_VISIBLE avbot : boost::noncopyable
 {
 public:
-	typedef boost::variant<std::shared_ptr<webqq::webqq>, std::shared_ptr<avim>, std::shared_ptr<irc::client>, std::shared_ptr<xmpp>> accounts_t;
+	typedef boost::variant<
+		std::shared_ptr<webqq::webqq>, std::shared_ptr<avim>, std::shared_ptr<irc::client>, std::shared_ptr<xmpp>
+	> accounts_t;
 	typedef std::function<void (std::string) > need_verify_image;
 	typedef boost::signals2::signal<void(channel_identifier, avbotmsg) > on_message_type;
 
@@ -45,7 +47,7 @@ private:
 	std::map<std::string, std::shared_ptr<avchannel>> m_avchannels;
 
 	// maps from protocol and room name to accounts
-	std::map<channel_identifier, accounts_t> m_account_mapping;
+	std::vector<std::pair<channel_identifier, accounts_t>> m_account_mapping;
 
 	std::shared_ptr<std::atomic<bool>> m_quit;
 
