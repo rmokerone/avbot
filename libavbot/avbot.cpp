@@ -536,10 +536,34 @@ struct send_avbot_message_visitor : public boost::static_visitor<>
 
 	void operator()(std::shared_ptr<avim>& avim_account) const
 	{
-		// 使用 qq 的模式发送消息
-		std::string text_msg = _bot.format_message_for_textIM(_msg);
+		std::vector<avim_msg> avmsg;
+		{
+			avim_msg text_msg;
+			text_msg.text = _msg.sender.preamble;
+			avmsg.push_back(text_msg);
+		}
 
-		//avim_account->send_room_message(_id.room, text_msg);
+		for (const avbotmsg_segment& seg : _msg.msgs)
+		{
+			if (seg.type == "text")
+			{
+				avim_msg text_msg;
+				text_msg.text = boost::any_cast<std::string>(seg.content);
+				avmsg.push_back(text_msg);
+			}
+			else if(seg.type == "image")
+			{
+				avim_msg img_msg;
+
+				avbotmsg_image_segment img_seg = boost::any_cast<avbotmsg_image_segment>(seg.content);
+ 				img_msg.image = img_seg.image_data;
+				img_msg.image_cname = img_seg.cname;
+				avmsg.push_back(img_msg);
+			}
+		}
+
+		avim_account->send_group_message(avmsg);
+
 		boost::system::error_code ec;
 		_bot.get_io_service().post(std::bind(_yield_context, ec));
 	}

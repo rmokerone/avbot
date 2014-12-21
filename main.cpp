@@ -67,8 +67,6 @@ namespace po = boost::program_options;
 #include "libavbot/avbot.hpp"
 #include "libavlog/avlog.hpp"
 
-#include "libwebqq/webqq.hpp"
-
 #include "botctl.hpp"
 #include "input.hpp"
 #include "avbot_vc_feed_input.hpp"

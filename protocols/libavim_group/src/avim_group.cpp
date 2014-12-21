@@ -18,3 +18,8 @@ void avim::on_message(boost::function<void(std::string reciver, std::string send
 {
 	m_impl->on_message.connect(cb);
 }
+
+void avim::send_group_message(std::vector<avim_msg> m)
+{
+	m_impl->send_group_message(m);
+}

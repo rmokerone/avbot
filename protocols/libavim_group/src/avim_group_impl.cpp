@@ -6,6 +6,7 @@ namespace fs = boost::filesystem;
 #include <avproto/easyssl.hpp>
 
 #include "group.pb.h"
+#include "avproto/message.hpp"
 
 static std::vector<std::string> get_lines(std::string filename)
 {
@@ -58,6 +59,28 @@ void avim_group_impl::start_login()
 {
 	if (!m_quitting)
 		boost::asio::spawn(m_io_service, std::bind(&avim_group_impl::internal_login_coroutine, shared_from_this(), std::placeholders::_1));
+}
+
+void avim_group_impl::send_group_message(std::vector<avim_msg> m)
+{
+	// 格式化后发送
+
+	message::message_packet av_msg;
+
+	for (avim_msg segmemt: m)
+	{
+		if(!segmemt.text.empty())
+		{
+			av_msg.add_avim()->mutable_item_text()->set_text(segmemt.text);
+		}
+
+		if(!segmemt.image.empty())
+		{
+			av_msg.add_avim()->mutable_item_image()->set_image(segmemt.image);
+		}
+	}
+
+	this->forward_client_message(encode_group_message(m_me_addr, "", 0, av_msg));
 }
 
 void avim_group_impl::internal_login_coroutine(boost::asio::yield_context yield_context)
@@ -155,7 +178,7 @@ void avim_group_impl::internal_loop_coroutine(boost::asio::yield_context yield_c
 
 				m_core.async_sendto(sender, encode_control_message(list_response), yield_context);
 			}
-		} 
+		}
 	}
 }
 

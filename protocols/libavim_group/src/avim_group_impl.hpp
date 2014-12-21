@@ -19,6 +19,9 @@ public:
 	void start();
 
 	void start_login();
+
+	void send_group_message(std::vector<avim_msg>);
+
 	// callback when there is a message
 	boost::signals2::signal<void(std::string reciver, std::string sender, std::vector<avim_msg>)> on_message;
 	boost::atomic<bool> m_quitting;

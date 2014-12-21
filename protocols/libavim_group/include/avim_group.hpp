@@ -6,7 +6,7 @@ class avim_group_impl;
 
 struct avim_msg{
 	std::string text;
-	std::string image;
+	std::string image, image_cname;
 	std::string url;
 };
 
@@ -17,6 +17,8 @@ public:
 	~avim();
 
 	void on_message(boost::function<void(std::string reciver, std::string sender, std::vector<avim_msg>)>);
+
+	void send_group_message(std::vector<avim_msg>);
 
 private:
 	boost::asio::io_service& m_io_service;
