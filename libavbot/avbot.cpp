@@ -413,10 +413,9 @@ void avbot::callback_on_avim_room_created(std::weak_ptr<avim> avim_account, std:
 	if (!r)
 		return;
 
-	if (m_account_mapping.find(channel_id) == m_account_mapping.end())
-	{
-		m_account_mapping.insert(std::make_pair(channel_id, r));
-	}
+	m_account_mapping.insert(std::make_pair(channel_id, r));
+
+	
 }
 
 
@@ -494,9 +493,10 @@ void avbot::set_mail_account( std::string mailaddr, std::string password, std::s
 std::shared_ptr<avim> avbot::add_avim_account(std::string key, std::string cert, std::string groupdeffile)
 {
 	auto avim_account = std::make_shared<avim>(std::ref(m_io_service), key, cert, groupdeffile);
+	std::weak_ptr<avim> account = avim_account;
 
 	avim_account->on_message(std::bind(&avbot::callback_on_avim, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-	avim_account->on_group_created(std::bind(&avbot::callback_on_avim_room_created, this, avim_account, std::placeholders::_1));
+	avim_account->on_group_created(std::bind(&avbot::callback_on_avim_room_created, this, account, std::placeholders::_1));
 
 	m_avim_accounts.push_back(avim_account);
 	return avim_account;

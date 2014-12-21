@@ -35,8 +35,6 @@ avim_group_impl::avim_group_impl(boost::asio::io_service& io, std::string key, s
 {
 	m_quitting = false;
 
-
-
 	m_key = load_RSA_from_file(key);
 	m_cert = load_X509_from_file(cert);
 

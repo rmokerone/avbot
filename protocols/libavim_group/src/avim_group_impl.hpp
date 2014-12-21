@@ -24,7 +24,7 @@ public:
 
 	// callback when there is a message
 	boost::signals2::signal<void(std::string reciver, std::string sender, std::vector<avim_msg>)> on_message;
-	boost::signals2::signal<void(std::string reciver)> on_group_created;
+	boost::signals2::signal<void(std::string roomname)> on_group_created;
 	boost::atomic<bool> m_quitting;
 
 private:
