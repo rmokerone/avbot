@@ -70,7 +70,7 @@ endif(ENABLE_LUA)
 
 
 if(ENABLE_PYTHON)
-	find_package(PythonLibsNew REQUIRED)
+	find_package(PythonLibs REQUIRED)
 	include_directories(${PYTHON_INCLUDE_DIRS})
 	link_directories(${PYTHON_LIBRARIE_DIRS})
 
