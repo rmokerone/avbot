@@ -352,6 +352,8 @@ static void init_database(soci::session & db)
 		"`nick` TEXT not null default \"\", "
 		"`message` TEXT not null default \" \""
 	");";
+	db.close();
+	db.open(soci::sqlite3, "avlog.db");
 }
 
 #ifdef WIN32

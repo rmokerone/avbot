@@ -140,6 +140,8 @@ public:
 	{
 		db.open(soci::sqlite3, dbpath);
 		check_db_initialized();
+		db.close();
+		db.open(soci::sqlite3, dbpath);
 	}
 
 	static std::string build_domain_conditions(std::string domain)

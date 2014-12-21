@@ -31,6 +31,8 @@ public:
 	{
 		m_sql.open(soci::sqlite3, dbname);
 		db_initialize();
+		m_sql.close();
+		m_sql.open(soci::sqlite3, dbname);
 	}
 
 	void update_group_list(std::string gid, std::string name, std::string code);
