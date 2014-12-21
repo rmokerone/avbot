@@ -125,7 +125,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/third_party/soci/src/cmake/mo
 
 find_package(SQLite3)
 
-if(NOT SQLite3_FOUND)
+if(SQLITE3_FOUND)
+	message (STATUS "found sqlite3")
+else()
+	message (STATUS "sqlite3 not found, try to use internal one")
 
 	add_subdirectory(third_party/sqlite)
 
