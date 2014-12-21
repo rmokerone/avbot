@@ -1,9 +1,9 @@
 
 #include <iostream>
-#include "avim_impl.hpp"
+#include "avim_group_impl.hpp"
 #include <avproto/easyssl.hpp>
 
-avim_impl::avim_impl(boost::asio::io_service& io, std::string key, std::string cert)
+avim_group_impl::avim_group_impl(boost::asio::io_service& io, std::string key, std::string cert)
 	: m_io_service(io)
 	, m_core(io)
 {
@@ -13,25 +13,25 @@ avim_impl::avim_impl(boost::asio::io_service& io, std::string key, std::string c
 	m_cert = load_X509_from_file(cert);
 }
 
-avim_impl::~avim_impl()
+avim_group_impl::~avim_group_impl()
 {
 	m_quitting = true;
 }
 
-void avim_impl::start()
+void avim_group_impl::start()
 {
-	boost::asio::spawn(m_io_service, std::bind(&avim_impl::internal_loop_coroutine, shared_from_this(), std::placeholders::_1));
+	boost::asio::spawn(m_io_service, std::bind(&avim_group_impl::internal_loop_coroutine, shared_from_this(), std::placeholders::_1));
 
 	start_login();
 }
 
-void avim_impl::start_login()
+void avim_group_impl::start_login()
 {
 	if (!m_quitting)
-		boost::asio::spawn(m_io_service, std::bind(&avim_impl::internal_login_coroutine, shared_from_this(), std::placeholders::_1));
+		boost::asio::spawn(m_io_service, std::bind(&avim_group_impl::internal_login_coroutine, shared_from_this(), std::placeholders::_1));
 }
 
-void avim_impl::internal_login_coroutine(boost::asio::yield_context yield_context)
+void avim_group_impl::internal_login_coroutine(boost::asio::yield_context yield_context)
 {
 	m_con.reset(new avjackif(m_io_service));
 	m_con->set_pki(m_key, m_cert);
@@ -66,7 +66,7 @@ void avim_impl::internal_login_coroutine(boost::asio::yield_context yield_contex
 	}
 }
 
-void avim_impl::internal_loop_coroutine(boost::asio::yield_context yield_context)
+void avim_group_impl::internal_loop_coroutine(boost::asio::yield_context yield_context)
 {
 
 	for(;!m_quitting;)

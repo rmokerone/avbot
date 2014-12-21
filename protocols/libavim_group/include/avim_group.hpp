@@ -2,7 +2,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/function.hpp>
 
-class avim_impl;
+class avim_group_impl;
 
 struct avim_msg{
 	std::string text;
@@ -20,5 +20,5 @@ public:
 
 private:
 	boost::asio::io_service& m_io_service;
-	std::shared_ptr<avim_impl> m_impl;
+	std::shared_ptr<avim_group_impl> m_impl;
 };

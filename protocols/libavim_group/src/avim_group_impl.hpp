@@ -7,13 +7,13 @@
 #include <avproto.hpp>
 #include <avproto/avjackif.hpp>
 
-#include "libavim.hpp"
+#include "avim_group.hpp"
 
-class avim_impl : public std::enable_shared_from_this<avim_impl>
+class avim_group_impl : public std::enable_shared_from_this<avim_group_impl>
 {
 public:
-	avim_impl(boost::asio::io_service& io, std::string key, std::string cert);
-	~avim_impl();
+	avim_group_impl(boost::asio::io_service& io, std::string key, std::string cert);
+	~avim_group_impl();
 
 public:
 	void start();

@@ -21,7 +21,7 @@
 #include "irc.hpp"
 #include "libxmpp/xmpp.hpp"
 #include "mx.hpp"
-#include "libavim.hpp"
+#include "avim_group.hpp"
 
 class BOOST_SYMBOL_VISIBLE avbot : boost::noncopyable
 {

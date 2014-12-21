@@ -1,11 +1,11 @@
 
-#include "libavim.hpp"
-#include "avim_impl.hpp"
+#include "avim_group.hpp"
+#include "avim_group_impl.hpp"
 
 avim::avim(boost::asio::io_service& io, std::string key, std::string cert)
 	: m_io_service(io)
 {
-	m_impl.reset(new avim_impl(io, key, cert));
+	m_impl.reset(new avim_group_impl(io, key, cert));
 	m_impl->start();
 }
 

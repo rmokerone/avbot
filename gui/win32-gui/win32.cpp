@@ -6,6 +6,8 @@
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 
+#define _WIN32
+
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x0600
 #endif
@@ -63,15 +65,9 @@ struct input_box_get_input_with_image_settings
 {
 	std::string imagedata;
 	std::function<void(boost::system::error_code, std::string)> donecallback;
-	LPPICTURE pPic;
 	boost::asio::io_service * io_service;
 	UINT_PTR timerid;
 	int remain_time;
-	~input_box_get_input_with_image_settings()
-	{
-		if (pPic)
-			pPic->Release();
-	}
 };
 
 typedef std::shared_ptr<input_box_get_input_with_image_settings> input_box_get_input_with_image_settings_ptr;
@@ -84,20 +80,40 @@ static bool input_box_get_input_with_image_dlgproc(HWND hwndDlg, UINT message, W
 		{
 			HBITMAP hbitmap = CreateBitmap(32, 32, 3, 32, 0);
 			HGLOBAL hglobal = GlobalAlloc(GMEM_MOVEABLE, settings->imagedata.size());
+			HBITMAP resizedbitmap = CreateBitmap(64, 64, 3, 32, 0);
+
+			CreateCompatibleDC();
 
 			{
 				LPVOID  locked_mem = GlobalLock(hglobal);
 				std::copy(settings->imagedata.begin(), settings->imagedata.end(), reinterpret_cast<char*>(locked_mem));
 				GlobalUnlock(hglobal);
 			}
-			IStream * istream;
+			std::shared_ptr<IStream> istream;
+			std::shared_ptr<IPicture> ipic;
 
-			CreateStreamOnHGlobal(hglobal, 1, &istream);
-			OleLoadPicture(istream, 0, TRUE, IID_IPicture, (LPVOID*)&(settings->pPic));
-			istream->Release();
-			settings->pPic->get_Handle((OLE_HANDLE*)&hbitmap);
+			{
+				IStream * _c_istream;
+				CreateStreamOnHGlobal(hglobal, 1, &_c_istream);
+				istream.reset(_c_istream, std::mem_fn(&IUnknown::Release));
+			}
+			{
+				LPPICTURE pPic;
+				OleLoadPicture(istream, 0, TRUE, IID_IPicture, (LPVOID*)&pPic);
+				ipic.reset(pPic, std::mem_fn(&IUnknown::Release));
+			}
+
+			ipic->get_Handle((OLE_HANDLE*)&hbitmap);
+
+			StretchBlt(resizedbitmap, 0, 0, 64, 64, hbitmap, 0, 0, 32, 32, SRCCOPY);
+
+			// resize image to 2x2 size, make people life easier
+
 			// decode the jpeg img data to bitmap and call set img
-			SendMessage(GetDlgItem(hwndDlg, IDC_VERCODE_DISPLAY), STM_SETIMAGE, IMAGE_BITMAP, (LPARAM) hbitmap);
+			// MS 说, 要先把之前的 hbitmap 释放, 否则内存泄漏
+			// 但是又说了, xp 之后的版本又不用自己释放. 我到底听谁的呢?
+			DeleteObject((HGDIOBJ)SendMessage(GetDlgItem(hwndDlg, IDC_VERCODE_DISPLAY), STM_GETIMAGE, IMAGE_BITMAP, (LPARAM) 0));
+			SendMessage(GetDlgItem(hwndDlg, IDC_VERCODE_DISPLAY), STM_SETIMAGE, IMAGE_BITMAP, (LPARAM) resizedbitmap);
 			SetTimer(hwndDlg, 2, 1000, 0);
 		}
 		return TRUE;
@@ -111,13 +127,13 @@ static bool input_box_get_input_with_image_dlgproc(HWND hwndDlg, UINT message, W
 			vcstr.resize(8);
 			vcstr.resize(GetDlgItemTextA(hwndDlg, IDC_INPUT_VERYCODE, &vcstr[0], vcstr.size()));
 			settings->donecallback(boost::system::error_code(), vcstr);
-			settings->donecallback.clear();
+			settings->donecallback = [](boost::system::error_code, std::string){};
 			avloop_gui_del_dlg(*(settings->io_service), hwndDlg);
 		}
 			return TRUE;
 		case IDCANCEL:
 			settings->donecallback(boost::asio::error::timed_out, "");
-			settings->donecallback.clear();
+			settings->donecallback = [](boost::system::error_code, std::string){};
 			avloop_gui_del_dlg(*(settings->io_service), hwndDlg);
 			// 退出消息循环
 			return TRUE;
@@ -159,14 +175,12 @@ std::function<void()> async_input_box_get_input_with_image(boost::asio::io_servi
 	input_box_get_input_with_image_settings setting;
 	setting.imagedata = imagedata;
 	setting.donecallback = donecallback;
-	setting.pPic = NULL;
 	setting.io_service = &io_service;
 	setting.remain_time = 32;
 
 	input_box_get_input_with_image_settings_ptr settings(new input_box_get_input_with_image_settings(setting));
 
 	av_dlgproc_t * real_proc = new av_dlgproc_t(boost::bind(&input_box_get_input_with_image_dlgproc, _1, _2, _3, _4, settings));
-
 
 	HWND dlgwnd = CreateDialogParam(hIns, MAKEINTRESOURCE(IDD_INPUT_VERCODE), GetConsoleWindow(), (DLGPROC)detail::internal_clusure_dlg_proc, (LPARAM)real_proc);
 	RECT	rtWindow = { 0 };

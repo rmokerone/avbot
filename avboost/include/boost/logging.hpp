@@ -197,9 +197,9 @@ namespace boost {
 	}
 
 #ifdef LOGGER_THREAD_SAFE
-#	define LOGGER_LOCKS_() boost::mutex::scoped_lock lock(aux::lock_single<boost::mutex>())
+#	define AV_LOGGER_LOCKS_() boost::mutex::scoped_lock lock(aux::lock_single<boost::mutex>())
 #else
-#	define LOGGER_LOCKS_() ((void)0)
+#	define AV_LOGGER_LOCKS_() ((void)0)
 #endif // LOGGER_THREAD_SAFE
 
 #if defined(WIN32) && defined(LOGGER_DBG_VIEW)
@@ -243,7 +243,7 @@ namespace boost {
 
 	inline void logger_writer(std::string& level, std::string& message, bool disable_cout = false)
 	{
-		LOGGER_LOCKS_();
+		AV_LOGGER_LOCKS_();
 		std::string prefix = aux::time_now_string() + std::string("[") + level + std::string("]: ");
 		std::string tmp = message + "\n";
 		std::string whole = prefix + tmp;
