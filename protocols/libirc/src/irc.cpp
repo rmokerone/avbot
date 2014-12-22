@@ -73,7 +73,7 @@ public:
 
 		join_queue_.push_back(msg);
 
-		get_io_service().post(std::bind(std::ref(on_new_room_cb), ch));
+		get_io_service().post(boost::bind(boost::ref(on_new_room_cb), ch));
 	}
 
 	void chat(const std::string whom, const std::string msg)
