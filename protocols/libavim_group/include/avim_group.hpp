@@ -1,6 +1,7 @@
 #pragma once
 #include <boost/asio/io_service.hpp>
 #include <functional>
+#include <memory>
 
 class avim_group_impl;
 
