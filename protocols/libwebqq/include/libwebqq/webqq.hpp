@@ -156,9 +156,9 @@ public:
 	// in signeedvc signal, you can retreve images from server.
 	void feed_vc( std::string vccode, std::function<void()> bad_vcreporter);
 
-	void send_group_message( std::string group, std::string msg, webqq_handler_t donecb );
-	void send_group_message( qqGroup &  group, std::string msg, webqq_handler_t donecb );
-	void send_offline_file(qqBuddy & buddy, std::string filename, webqq_handler_t donecb );
+	void send_group_message(std::string group, std::string msg, webqq_handler_t donecb);
+	void send_group_message(const qqGroup& group, std::string msg, webqq_handler_t donecb);
+	void send_offline_file(const qqBuddy& buddy, std::string filename, webqq::webqq::webqq_handler_t donecb);
 	void send_offline_file(std::string uin, std::string filename, webqq_handler_t donecb );
 
 	void update_group_member(std::shared_ptr<qqGroup> group );

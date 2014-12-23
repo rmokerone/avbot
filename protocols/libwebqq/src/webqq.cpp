@@ -115,12 +115,12 @@ void webqq::send_group_message( std::string group, std::string msg, webqq_handle
 	impl->send_group_message( group, msg, donecb );
 }
 
-void webqq::send_group_message( qqGroup& group, std::string msg, webqq_handler_t donecb )
+void webqq::send_group_message(const qqGroup& group, std::string msg, webqq_handler_t donecb )
 {
 	impl->send_group_message( group, msg, donecb );
 }
 
-void webqq::send_offline_file(qqBuddy& buddy, std::string filename, webqq_handler_t donecb)
+void webqq::send_offline_file(const qqBuddy& buddy, std::string filename, webqq_handler_t donecb)
 {
 	impl->get_ioservice().post(
 		std::bind<void>(&qqimpl::WebQQ::send_offline_file, impl, buddy.uin, filename, donecb)

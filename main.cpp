@@ -789,7 +789,7 @@ int main(int argc, char * argv[])
 
 	if (!weblogbaseurl.empty())
 	{
-		mybot.m_urlformater = boost::bind(&imgurlformater, _1, weblogbaseurl);
+		mybot.m_urlformater = std::bind(&imgurlformater, std::placeholders::_1, weblogbaseurl);
 	}
 
 	mybot.m_image_saver = img_saver;

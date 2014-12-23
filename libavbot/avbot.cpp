@@ -540,7 +540,16 @@ struct send_avbot_message_visitor : public boost::static_visitor<>
 	{
 		// 使用 qq 的模式发送消息
 		std::string text_msg = _bot.format_message_for_qq(_msg);
- 		qq->send_group_message(_id.room, text_msg, _yield_context);
+		webqq::qqGroup_ptr group = qq->get_Group_by_qq(_id.room);
+		if (group)
+		{
+			qq->send_group_message(*group, text_msg, _yield_context);
+		}
+		else
+		{
+			boost::system::error_code ec;
+			_bot.get_io_service().post(std::bind(_yield_context, ec));
+		}
 	}
 
 	void operator()(std::shared_ptr<irc::client>& irc_account) const

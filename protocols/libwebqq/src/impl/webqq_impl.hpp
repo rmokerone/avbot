@@ -114,7 +114,7 @@ public:
 
 	typedef std::function<void ( const boost::system::error_code& ec )> send_group_message_cb;
 	void send_group_message( std::string group, std::string msg, send_group_message_cb donecb );
-	void send_group_message( qqGroup &  group, std::string msg, send_group_message_cb donecb );
+	void send_group_message(const qqGroup &  group, std::string msg, send_group_message_cb donecb );
 	void update_group_member(std::shared_ptr<qqGroup> group, webqq::webqq_handler_t handler);
 
 	void send_offline_file(std::string uin, std::string filename, webqq::webqq_handler_t handler);

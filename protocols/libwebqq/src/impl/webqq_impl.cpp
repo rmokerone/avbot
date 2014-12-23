@@ -243,7 +243,7 @@ void  WebQQ::change_status(LWQQ_STATUS status, std::function<void (boost::system
 	async_change_status(shared_from_this(), status, handler);
 }
 
-void WebQQ::send_group_message( qqGroup& group, std::string msg, send_group_message_cb donecb )
+void WebQQ::send_group_message(const qqGroup& group, std::string msg, send_group_message_cb donecb )
 {
 	send_group_message( group.gid, msg, donecb );
 }
